@@ -2,8 +2,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py[cod]
 .Python
 .env
-.venv
 .env.local
+.venv/
 venv/
