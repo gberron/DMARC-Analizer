@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-3 gap-3">
+  <div>
+    <h5 class="mb-1">Reportes DMARC</h5>
+    <p class="text-muted mb-0">Filtra por dominio y rango de fechas.</p>
+  </div>
+  <form class="row gy-2 gx-2 align-items-end" method="get">
+    <div class="col-12 col-md-auto">
+      <label class="form-label mb-1" for="domain">Dominio</label>
+      <select class="form-select" id="domain" name="domain">
+        <option value="">Todos</option>
+        {% for d in available_domains %}
+          <option value="{{ d }}" {% if request.args.get('domain') == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-auto">
+      <label class="form-label mb-1" for="start">Desde</label>
+      <input class="form-control" type="date" id="start" name="start" value="{{ request.args.get('start', '') }}">
+    </div>
+    <div class="col-12 col-md-auto">
+      <label class="form-label mb-1" for="end">Hasta</label>
+      <input class="form-control" type="date" id="end" name="end" value="{{ request.args.get('end', '') }}">
+    </div>
+    <div class="col-12 col-md-auto">
+      <button class="btn btn-outline-primary w-100" type="submit">Aplicar</button>
+    </div>
+  </form>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if reports %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Dominio</th>
+              <th>Fecha de inicio</th>
+              <th>Fecha de fin</th>
+              <th>Organización</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in reports %}
+              <tr>
+                <td>{{ report.report_id }}</td>
+                <td>{{ report.domain }}</td>
+                <td>{{ report.date_range_start.date() }}</td>
+                <td>{{ report.date_range_end.date() }}</td>
+                <td>{{ report.org_name or 'desconocido' }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('web.report_detail', report_id=report.id) }}">Detalle</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">No hay reportes para los filtros seleccionados.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

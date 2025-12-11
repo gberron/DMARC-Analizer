@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Cargar informe DMARC</h5>
+        <p class="text-muted">Acepta archivos XML, .gz o .zip. El sistema extrae múltiples informes si vienen comprimidos.</p>
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label for="report" class="form-label">Archivo de reporte</label>
+            <input class="form-control" type="file" id="report" name="report" accept=".xml,.gz,.zip" required>
+            <div class="form-text">Los informes suelen llegar por correo a una casilla dedicada. Súbelos aquí para analizarlos.</div>
+          </div>
+          <button class="btn btn-primary" type="submit">Procesar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
