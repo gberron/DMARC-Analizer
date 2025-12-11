@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+  <div>
+    <h5 class="mb-1">Reporte {{ report.report_id }}</h5>
+    <p class="text-muted mb-0">Dominio: {{ report.domain }} | Rango: {{ report.date_range_start.date() }} - {{ report.date_range_end.date() }}</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{{ url_for('web.reports') }}">Volver</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title">Política publicada</h6>
+        <ul class="list-unstyled mb-0">
+          <li><strong>adkim:</strong> {{ report.adkim or 'n/d' }}</li>
+          <li><strong>aspf:</strong> {{ report.aspf or 'n/d' }}</li>
+          <li><strong>p:</strong> {{ report.p or 'n/d' }}</li>
+          <li><strong>sp:</strong> {{ report.sp or 'n/d' }}</li>
+          <li><strong>pct:</strong> {{ report.pct or 'n/d' }}</li>
+          <li><strong>Remitente:</strong> {{ report.org_name or 'desconocido' }}</li>
+          <li><strong>Contacto:</strong> {{ report.email or 'n/a' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">Registros</h6>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Fuente IP</th>
+                <th>Count</th>
+                <th>Disposición</th>
+                <th>Alineación</th>
+                <th>Dominio autenticado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in report.records %}
+                <tr>
+                  <td>{{ record.source_ip }}</td>
+                  <td>{{ record.count }}</td>
+                  <td>{{ record.disposition or 'n/d' }}</td>
+                  <td>{{ record.alignment_status() }}</td>
+                  <td>
+                    <div><small class="text-muted">DKIM:</small> {{ record.auth_dkim_domain or 'n/d' }}</div>
+                    <div><small class="text-muted">SPF:</small> {{ record.auth_spf_domain or 'n/d' }}</div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

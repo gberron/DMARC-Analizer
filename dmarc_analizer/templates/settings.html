@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title">Servidor de correo</h5>
+        <p class="text-muted">Define el servidor que recibirá los reportes y que se usará para enviar resúmenes.</p>
+        <form method="post">
+          <input type="hidden" name="form_type" value="mail">
+          <div class="mb-3">
+            <label class="form-label" for="mail_server">Servidor IMAP/POP3</label>
+            <input class="form-control" id="mail_server" name="mail_server" type="text" value="{{ settings.mail_server or '' }}" placeholder="mail.midominio.com">
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label" for="mail_port">Puerto</label>
+              <input class="form-control" id="mail_port" name="mail_port" type="number" value="{{ settings.mail_port or '' }}" placeholder="993">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="connection_type">Tipo de conexión</label>
+              <select class="form-select" id="connection_type" name="connection_type">
+                <option value="">Selecciona</option>
+                <option value="IMAP" {% if settings.connection_type == 'IMAP' %}selected{% endif %}>IMAP</option>
+                <option value="POP3" {% if settings.connection_type == 'POP3' %}selected{% endif %}>POP3</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-6">
+              <label class="form-label" for="username">Usuario</label>
+              <input class="form-control" id="username" name="username" type="text" value="{{ settings.username or '' }}" placeholder="usuario@midominio.com">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="password">Clave</label>
+              <input class="form-control" id="password" name="password" type="password" placeholder="••••••">
+              <div class="form-text">Déjala vacía para mantener la actual.</div>
+            </div>
+          </div>
+          <div class="form-check form-switch mt-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="use_ssl" name="use_ssl" value="1" {% if settings.use_ssl %}checked{% endif %}>
+            <label class="form-check-label" for="use_ssl">Usar SSL para recepción</label>
+          </div>
+          <hr>
+          <h6>Envío SMTP</h6>
+          <div class="mb-3">
+            <label class="form-label" for="smtp_server">Servidor SMTP</label>
+            <input class="form-control" id="smtp_server" name="smtp_server" type="text" value="{{ settings.smtp_server or '' }}" placeholder="smtp.midominio.com">
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label" for="smtp_port">Puerto SMTP</label>
+              <input class="form-control" id="smtp_port" name="smtp_port" type="number" value="{{ settings.smtp_port or '' }}" placeholder="587">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="sender">Remitente</label>
+              <input class="form-control" id="sender" name="sender" type="email" value="{{ settings.sender or '' }}" placeholder="reportes@midominio.com">
+            </div>
+          </div>
+          <div class="form-check form-switch mt-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="use_tls" name="use_tls" value="1" {% if settings.use_tls %}checked{% endif %}>
+            <label class="form-check-label" for="use_tls">Habilitar STARTTLS</label>
+          </div>
+          <div class="mt-3 d-flex gap-2 justify-content-end">
+            <button class="btn btn-primary" type="submit">Guardar configuración</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+          <div>
+            <h5 class="card-title mb-0">Reportes periódicos</h5>
+            <p class="text-muted mb-0">Envía resúmenes por correo filtrados por dominio y rango.</p>
+          </div>
+        </div>
+        <form class="mt-3" method="post" action="{{ url_for('web.create_schedule') }}">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="name">Nombre</label>
+              <input class="form-control" id="name" name="name" type="text" placeholder="Semanal corporativo" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="recipient">Destinatario</label>
+              <input class="form-control" id="recipient" name="recipient" type="email" placeholder="seguridad@midominio.com" required>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-6">
+              <label class="form-label" for="days_back">Días a incluir</label>
+              <input class="form-control" id="days_back" name="days_back" type="number" min="1" value="7">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="frequency">Frecuencia</label>
+              <select class="form-select" id="frequency" name="frequency">
+                <option value="diaria">Diaria</option>
+                <option value="semanal" selected>Semanal</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label" for="domain_filter">Filtrar dominio (opcional)</label>
+            <input class="form-control" id="domain_filter" name="domain_filter" type="text" placeholder="example.com">
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-outline-primary" type="submit">Agregar reporte programado</button>
+          </div>
+        </form>
+        <hr>
+        {% if schedules %}
+          <div class="list-group list-group-flush">
+            {% for schedule in schedules %}
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between flex-column flex-md-row gap-2 align-items-md-center">
+                  <div>
+                    <h6 class="mb-1">{{ schedule.name }}</h6>
+                    <p class="mb-0 small text-muted">
+                      Destinatario: {{ schedule.recipient }} · Rango: últimos {{ schedule.days_back }} días · Dominio: {{ schedule.domain_filter or 'todos' }}
+                    </p>
+                    {% if schedule.last_sent_at %}
+                      <p class="mb-0 small text-success">Último envío: {{ schedule.last_sent_at.strftime('%Y-%m-%d %H:%M UTC') }}</p>
+                    {% else %}
+                      <p class="mb-0 small text-muted">Aún no enviado.</p>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex gap-2">
+                    <form method="post" action="{{ url_for('web.send_schedule_now', schedule_id=schedule.id) }}">
+                      <button class="btn btn-sm btn-success" type="submit">Enviar ahora</button>
+                    </form>
+                    <form method="post" action="{{ url_for('web.delete_schedule', schedule_id=schedule.id) }}" onsubmit="return confirm('¿Eliminar este reporte?');">
+                      <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Todavía no hay reportes programados.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
